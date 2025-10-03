@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de Cuenta</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .upload-section {
+            max-width: 900px;
+            margin: 0 auto 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .upload-section h1 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .upload-section p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            border: 3px dashed #1976d2;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .file-input-label:hover {
+            border-color: #0d47a1;
+            background: #e3f2fd;
+        }
+        
+        .file-input-label.active {
+            border-color: #27ae60;
+            background: #d4edda;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-right: 15px;
+        }
+        
+        .upload-text {
+            font-size: 16px;
+            color: #1e3c72;
+            font-weight: 600;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h3 {
+            color: #856404;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+            color: #856404;
+            font-size: 13px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        .btn-download-template {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-download-template:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        .no-print {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-pdf {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-excel {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+        
+        .btn-excel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        .btn-reset {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: none;
+        }
+        
+        .container.visible {
+            display: block;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            color: #1e3c72;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #1976d2;
+        }
+        
+        .account-info {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: 10px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        
+        .info-value {
+            font-size: 13px;
+            color: #1e3c72;
+            font-weight: 600;
+        }
+        
+        .balance-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .balance-card {
+            background: white;
+            border: 2px solid #e0e7ff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .balance-card.initial {
+            border-left: 4px solid #1976d2;
+        }
+        
+        .balance-card.income {
+            border-left: 4px solid #27ae60;
+        }
+        
+        .balance-card.expense {
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .balance-card.final {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            border: none;
+        }
+        
+        .balance-card-label {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .balance-card-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .movements-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .movements-table th,
+        .movements-table td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #e0e7ff;
+        }
+        
+        .movements-table th {
+            background: #1e3c72;
+            color: white;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .movements-table td {
+            background: white;
+        }
+        
+        .movements-table tr:nth-child(even) td {
+            background: #f8f9fa;
+        }
+        
+        .movements-table tr:hover td {
+            background: #e3f2fd;
+        }
+        
+        .movements-table .amount {
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        .income {
+            color: #27ae60;
+        }
+        
+        .expense {
+            color: #e74c3c;
+        }
+        
+        .balance-column {
+            color: #1976d2;
+            font-weight: 700;
+        }
+        
+        .summary-row {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important;
+            color: white !important;
+            font-weight: 700;
+            font-size: 13px;
+        }
+        
+        .summary-row td {
+            background: transparent !important;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: center;
+            color: #666;
+            font-size: 10px;
+            border-top: 1px solid #e0e7ff;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .no-print, .upload-section {
+                display: none;
+            }
+            
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+        }
+        
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="upload-section">
+        <h1>💰 Estado de Cuenta</h1>
+        <p>Genera un estado de cuenta detallado con saldo inicial, ingresos, retiros y saldo actual</p>
+        
+        <div class="instructions">
+            <h3>📋 Formato del archivo Excel:</h3>
+            <ul>
+                <li><strong>Fila 1:</strong> Nombre del Titular de la Cuenta</li>
+                <li><strong>Fila 2:</strong> Número de Cuenta o Identificación</li>
+                <li><strong>Fila 3:</strong> Saldo Inicial</li>
+                <li><strong>Fila 4:</strong> Período (Ejemplo: Enero 2024)</li>
+                <li><strong>Fila 6+:</strong> Fecha | Descripción | Tipo (INGRESO/RETIRO) | Monto</li>
+            </ul>
+        </div>
+        
+        <button class="btn-download-template" onclick="downloadTemplate()">
+            📥 Descargar Plantilla Excel
+        </button>
+        
+        <div class="file-input-wrapper" style="margin-top: 20px;">
+            <label for="fileInput" class="file-input-label" id="fileLabel">
+                <span class="upload-icon">📁</span>
+                <span class="upload-text">Click aquí para cargar archivo Excel</span>
+            </label>
+            <input type="file" id="fileInput" accept=".xlsx, .xls" onchange="handleFileUpload(event)">
+        </div>
+    </div>
+
+    <div class="no-print">
+        <div class="export-buttons">
+            <button class="btn btn-pdf" onclick="exportToPDF()">📄 Descargar PDF</button>
+            <button class="btn btn-excel" onclick="exportToExcel()">📊 Exportar Excel</button>
+            <button class="btn btn-reset" onclick="resetForm()">🔄 Cargar Otro Archivo</button>
+        </div>
+    </div>
+
+    <div class="container" id="reportContainer">
+        <div class="header">
+            <h1>ESTADO DE CUENTA</h1>
+            <p>Resumen Detallado de Movimientos y Saldos</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2 class="section-title">Información de la Cuenta</h2>
+                <div class="account-info">
+                    <div class="info-item">
+                        <span class="info-label">Titular de la Cuenta</span>
+                        <span class="info-value" id="accountHolder">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Número de Cuenta</span>
+                        <span class="info-value" id="accountNumber">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Período</span>
+                        <span class="info-value" id="accountPeriod">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Fecha de Emisión</span>
+                        <span class="info-value" id="reportDate">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Resumen de Saldos</h2>
+                <div class="balance-summary">
+                    <div class="balance-card initial">
+                        <div class="balance-card-label">Saldo Inicial</div>
+                        <div class="balance-card-value" id="initialBalance">₡0.00</div>
+                    </div>
+                    <div class="balance-card income">
+                        <div class="balance-card-label">Total Ingresos</div>
+                        <div class="balance-card-value" id="totalIncome">₡0.00</div>
+                    </div>
+                    <div class="balance-card expense">
+                        <div class="balance-card-label">Total Retiros</div>
+                        <div class="balance-card-value" id="totalExpense">₡0.00</div>
+                    </div>
+                    <div class="balance-card final">
+                        <div class="balance-card-label">Saldo Actual</div>
+                        <div class="balance-card-value" id="finalBalance">₡0.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Detalle de Movimientos</h2>
+                <table class="movements-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th>Tipo</th>
+                            <th>Ingresos</th>
+                            <th>Retiros</th>
+                            <th>Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="movementsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Documento Confidencial</strong> | Este estado de cuenta contiene información financiera privada</p>
+            <p style="margin-top: 8px;" id="footerDate">-</p>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+
+        function downloadTemplate() {
+            const data = [
+                ['Titular de la Cuenta', 'Juan Carlos Pérez Rodríguez'],
+                ['Número de Cuenta', '1-1234-5678'],
+                ['Saldo Inicial', '500000'],
+                ['Período', 'Enero 2024'],
+                [],
+                ['Fecha', 'Descripción', 'Tipo', 'Monto'],
+                ['05/01/2024', 'Depósito inicial', 'INGRESO', '100000'],
+                ['10/01/2024', 'Retiro cajero automático', 'RETIRO', '50000'],
+                ['15/01/2024', 'Transferencia recibida', 'INGRESO', '200000'],
+                ['20/01/2024', 'Pago de servicios', 'RETIRO', '75000'],
+                ['25/01/2024', 'Depósito en efectivo', 'INGRESO', '150000'],
+                ['28/01/2024', 'Retiro para compras', 'RETIRO', '120000']
+            ];
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [
+                { wch: 15 },
+                { wch: 40 },
+                { wch: 12 },
+                { wch: 15 }
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Estado de Cuenta');
+            XLSX.writeFile(wb, 'Plantilla_Estado_Cuenta.xlsx');
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                    
+                    processExcelData(jsonData);
+                    document.getElementById('fileLabel').classList.add('active');
+                    document.querySelector('.upload-text').textContent = '✅ Archivo cargado exitosamente';
+                } catch (error) {
+                    alert('Error al leer el archivo. Verifica que sea un archivo Excel válido.');
+                    console.error(error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return new Date();
+            
+            if (typeof dateStr === 'number') {
+                const date = new Date((dateStr - 25569) * 86400 * 1000);
+                return date;
+            }
+            
+            const parts = dateStr.toString().split('/');
+            if (parts.length === 3) {
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+            
+            return new Date(dateStr);
+        }
+
+        function processExcelData(data) {
+            if (data.length < 6) {
+                alert('El archivo no contiene datos suficientes');
+                return;
+            }
+
+            // Extraer información de la cuenta
+            const accountHolder = data[0][1] || 'Sin especificar';
+            const accountNumber = data[1][1] || 'Sin especificar';
+            const initialBalance = parseFloat(data[2][1]) || 0;
+            const period = data[3][1] || 'Sin especificar';
+
+            // Procesar movimientos
+            const movements = [];
+            let totalIncome = 0;
+            let totalExpense = 0;
+
+            for (let i = 6; i < data.length; i++) {
+                const row = data[i];
+                if (row.length < 4) continue;
+
+                const movement = {
+                    date: parseDate(row[0]),
+                    description: row[1] || 'Sin descripción',
+                    type: row[2] ? row[2].toUpperCase() : 'INGRESO',
+                    amount: parseFloat(row[3]) || 0
+                };
+
+                movements.push(movement);
+
+                if (movement.type === 'INGRESO') {
+                    totalIncome += movement.amount;
+                } else if (movement.type === 'RETIRO') {
+                    totalExpense += movement.amount;
+                }
+            }
+
+            // Ordenar movimientos por fecha
+            movements.sort((a, b) => a.date - b.date);
+
+            const finalBalance = initialBalance + totalIncome - totalExpense;
+
+            currentData = {
+                accountHolder,
+                accountNumber,
+                period,
+                initialBalance,
+                totalIncome,
+                totalExpense,
+                finalBalance,
+                movements
+            };
+
+            displayReport();
+        }
+
+        function displayReport() {
+            if (!currentData) return;
+
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('es-ES', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            document.getElementById('accountHolder').textContent = currentData.accountHolder;
+            document.getElementById('accountNumber').textContent = currentData.accountNumber;
+            document.getElementById('accountPeriod').textContent = currentData.period;
+            document.getElementById('reportDate').textContent = dateStr;
+            document.getElementById('footerDate').textContent = `Generado el ${dateStr}`;
+
+            // Mostrar resumen de saldos
+            document.getElementById('initialBalance').textContent = `₡${formatNumber(currentData.initialBalance)}`;
+            document.getElementById('totalIncome').textContent = `₡${formatNumber(currentData.totalIncome)}`;
+            document.getElementById('totalExpense').textContent = `₡${formatNumber(currentData.totalExpense)}`;
+            document.getElementById('finalBalance').textContent = `₡${formatNumber(currentData.finalBalance)}`;
+
+            // Generar tabla de movimientos
+            const tbody = document.getElementById('movementsTableBody');
+            tbody.innerHTML = '';
+
+            // Fila de saldo inicial
+            const initialRow = document.createElement('tr');
+            initialRow.style.fontWeight = '600';
+            initialRow.innerHTML = `
+                <td>-</td>
+                <td><strong>SALDO INICIAL</strong></td>
+                <td>-</td>
+                <td class="amount">-</td>
+                <td class="amount">-</td>
+                <td class="amount balance-column">₡${formatNumber(currentData.initialBalance)}</td>
+            `;
+            tbody.appendChild(initialRow);
+
+            // Movimientos
+            let runningBalance = currentData.initialBalance;
+            currentData.movements.forEach(movement => {
+                if (movement.type === 'INGRESO') {
+                    runningBalance += movement.amount;
+                } else {
+                    runningBalance -= movement.amount;
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${movement.date.toLocaleDateString('es-ES')}</td>
+                    <td>${movement.description}</td>
+                    <td><strong class="${movement.type === 'INGRESO' ? 'income' : 'expense'}">${movement.type}</strong></td>
+                    <td class="amount ${movement.type === 'INGRESO' ? 'income' : ''}">
+                        ${movement.type === 'INGRESO' ? '+₡' + formatNumber(movement.amount) : '-'}
+                    </td>
+                    <td class="amount ${movement.type === 'RETIRO' ? 'expense' : ''}">
+                        ${movement.type === 'RETIRO' ? '-₡' + formatNumber(movement.amount) : '-'}
+                    </td>
+                    <td class="amount balance-column">₡${formatNumber(runningBalance)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Fila de totales
+            const summaryRow = document.createElement('tr');
+            summaryRow.className = 'summary-row';
+            summaryRow.innerHTML = `
+                <td colspan="3"><strong>TOTALES</strong></td>
+                <td class="amount"><strong>+₡${formatNumber(currentData.totalIncome)}</strong></td>
+                <td class="amount"><strong>-₡${formatNumber(currentData.totalExpense)}</strong></td>
+                <td class="amount"><strong>₡${formatNumber(currentData.finalBalance)}</strong></td>
+            `;
+            tbody.appendChild(summaryRow);
+
+            document.getElementById('reportContainer').classList.add('visible');
+            
+            setTimeout(() => {
+                document.getElementById('reportContainer').scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+        }
+
+        function formatNumber(num) {
+            return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function exportToPDF() {
+            if (!currentData) {
+                alert('Por favor carga un archivo Excel primero');
+                return;
+            }
+            window.print();
+        }
+
+        function exportToExcel() {
+            if (!currentData) {
+                alert('Por favor carga un archivo Excel primero');
+                return;
+            }
+
+            const data = [
+                ['ESTADO DE CUENTA'],
+                [],
+                ['Titular', currentData.accountHolder],
+                ['Número de Cuenta', currentData.accountNumber],
+                ['Período', currentData.period],
+                ['Fecha de Emisión', document.getElementById('reportDate').textContent],
+                [],
+                ['RESUMEN'],
+                ['Saldo Inicial', currentData.initialBalance],
+                ['Total Ingresos', currentData.totalIncome],
+                ['Total Retiros', currentData.totalExpense],
+                ['Saldo Final', currentData.finalBalance],
+                [],
+                ['DETALLE DE MOVIMIENTOS'],
+                ['Fecha', 'Descripción', 'Tipo', 'Ingresos', 'Retiros', 'Saldo']
+            ];
+
+            let balance = currentData.initialBalance;
+            currentData.movements.forEach(movement => {
+                if (movement.type === 'INGRESO') {
+                    balance += movement.amount;
+                    data.push([
+                        movement.date.toLocaleDateString('es-ES'),
+                        movement.description,
+                        movement.type,
+                        movement.amount,
+                        '',
+                        balance
+                    ]);
+                } else {
+                    balance -= movement.amount;
+                    data.push([
+                        movement.date.toLocaleDateString('es-ES'),
+                        movement.description,
+                        movement.type,
+                        '',
+                        movement.amount,
+                        balance
+                    ]);
+                }
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [
+                { wch: 15 },
+                { wch: 40 },
+                { wch: 12 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 15 }
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Estado de Cuenta');
+            
+            const fileName = `Estado_Cuenta_${currentData.accountHolder.replace(/\s+/g, '_')}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
+        function resetForm() {
+            currentData = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileLabel').classList.remove('active');
+            document.querySelector('.upload-text').textContent = 'Click aquí para cargar archivo Excel';
+            document.getElementById('reportContainer').classList.remove('visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
